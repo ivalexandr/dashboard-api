@@ -2,6 +2,7 @@ import express, { Express } from 'express'
 import { userRouter } from './users/users'
 import { Server } from 'http'
 import { LoggerService } from './logger/logger.service'
+import { UserController } from './users/users.controller'
 
 export class App {
   app: Express
@@ -16,7 +17,7 @@ export class App {
   }
 
   useRoutes() {
-    this.app.use('/users', userRouter)
+    this.app.use('/users', new UserController(this.logger).router)
   }
 
   public async init() {
