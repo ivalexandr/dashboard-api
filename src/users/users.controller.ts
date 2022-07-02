@@ -1,3 +1,4 @@
+import { Request, Response, NextFunction } from 'express'
 import { BaseController } from '../common/base.controller'
 import { IControllerRoute } from '../common/route.interface'
 import { LoggerService } from '../logger/logger.service'
@@ -10,18 +11,22 @@ export class UserController extends BaseController {
       {
         path: '/login',
         method: 'post',
-        func(req, res, next) {
-          res.send('login')
-        },
+        func: this.login,
       },
       {
         path: '/register',
         method: 'post',
-        func(req, res, next) {
-          res.send('register')
-        },
+        func: this.register,
       },
     ]
     this.bindRoutes(this.routes)
+  }
+
+  login = (req: Request, res: Response, next: NextFunction) => {
+    this.ok(res, 'login')
+  }
+
+  register = (req: Request, res: Response, next: NextFunction) => {
+    this.ok(res, 'register')
   }
 }
