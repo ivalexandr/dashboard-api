@@ -9,8 +9,8 @@ import { IUserController } from './users.interface'
 import { UserLoginDto } from './dto/user-login.dto'
 import { UserRegisterDto } from './dto/user-register.dto'
 import { IUsersService } from './users.service.interface'
-import 'reflect-metadata'
 import { ValidateMidleware } from '../common/validate.midleware'
+import 'reflect-metadata'
 
 @injectable()
 export class UserController extends BaseController implements IUserController {

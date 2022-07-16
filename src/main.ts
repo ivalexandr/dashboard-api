@@ -9,16 +9,20 @@ import { UserController } from './users/users.controller'
 import { IUserController } from './users/users.interface'
 import { IUsersService } from './users/users.service.interface'
 import { UsersService } from './users/users.service'
+import { IConfigService } from './config/config.service.interface'
+import { ConfigService } from './config/config.service'
+
 export interface IBootstrapReturn {
 	appContainer: Container
 	app: App
 }
 
 export const appBindings = new ContainerModule((bind: interfaces.Bind) => {
-	bind<ILogger>(TYPES.ILogger).to(LoggerService)
-	bind<IExeptionFilter>(TYPES.IExeptionFilter).to(ExeptionFilter)
+	bind<ILogger>(TYPES.ILogger).to(LoggerService).inSingletonScope()
+	bind<IExeptionFilter>(TYPES.IExeptionFilter).to(ExeptionFilter).inSingletonScope()
 	bind<IUserController>(TYPES.UserController).to(UserController)
 	bind<IUsersService>(TYPES.UserService).to(UsersService)
+	bind<IConfigService>(TYPES.ConfigService).to(ConfigService).inRequestScope()
 	bind<App>(TYPES.Application).to(App)
 })
 
