@@ -6,6 +6,7 @@ import { TYPES } from '../types'
 import { IConfigService } from '../config/config.service.interface'
 import { IUsersRepo } from './users.repo.interface'
 import { UserModel } from '@prisma/client'
+import { UserLoginDto } from './dto/user-login.dto'
 import 'reflect-metadata'
 
 @injectable()
@@ -26,7 +27,12 @@ export class UsersService implements IUsersService {
 		return this.usersRepo.create(newUser)
 	}
 
-	validateUser = async (dto: UserRegisterDto): Promise<boolean> => {
-		return true
+	validateUser = async ({ email, password }: UserLoginDto): Promise<boolean> => {
+		const existedUser = await this.usersRepo.find(email)
+		if (!existedUser) {
+			return false
+		}
+		const newUser = new User(existedUser.email, existedUser.name, existedUser.password)
+		return newUser.comparePassword(password)
 	}
 }

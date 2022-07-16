@@ -25,6 +25,7 @@ export class UserController extends BaseController implements IUserController {
 				path: '/login',
 				method: 'post',
 				func: this.login,
+				middlewares: [new ValidateMidleware(UserLoginDto)],
 			},
 			{
 				path: '/register',
@@ -36,9 +37,17 @@ export class UserController extends BaseController implements IUserController {
 		this.bindRoutes(this.routes)
 	}
 
-	login = (req: Request<{}, {}, UserLoginDto>, res: Response, next: NextFunction): void => {
-		console.log(req.body)
-		next(new HTTPError(401, 'Ошибка авторизации', 'login'))
+	login = async (
+		{ body }: Request<{}, {}, UserLoginDto>,
+		res: Response,
+		next: NextFunction,
+	): Promise<void> => {
+		const result = await this.userService.validateUser(body)
+		if (!result) {
+			return next(new HTTPError(401, 'Ошибка авторизации', 'login'))
+		}
+		this.loggerService.log(`[UserController] Пользователь ${body.email} авторизовался`)
+		this.ok(res, body)
 	}
 
 	register = async (
@@ -48,7 +57,7 @@ export class UserController extends BaseController implements IUserController {
 	): Promise<void> => {
 		const result = await this.userService.createUser(body)
 		if (!result) {
-			return next(new HTTPError(422, 'Такой пользователь уже существует', 'user is been'))
+			return next(new HTTPError(422, 'Такой пользователь уже существует', 'user has been'))
 		}
 		this.ok(res, { email: result.email, id: result.id })
 	}
