@@ -6,6 +6,8 @@ import { HTTPError } from '../errors/http-error.class'
 import { TYPES } from '../types'
 import { ILogger } from '../logger/logger.interface'
 import { IUserController } from './users.interface'
+import { UserLoginDto } from './dto/user-login.dto'
+import { UserRegisterDto } from './dto/user-register.dto'
 import 'reflect-metadata'
 
 @injectable()
@@ -28,12 +30,13 @@ export class UserController extends BaseController implements IUserController {
 		this.bindRoutes(this.routes)
 	}
 
-	login = (req: Request, res: Response, next: NextFunction): void => {
-		console.log('fdfsdf')
+	login = (req: Request<{}, {}, UserLoginDto>, res: Response, next: NextFunction): void => {
+		console.log(req.body)
 		next(new HTTPError(401, 'Ошибка авторизации', 'login'))
 	}
 
-	register = (req: Request, res: Response, next: NextFunction): void => {
+	register = (req: Request<{}, {}, UserRegisterDto>, res: Response, next: NextFunction): void => {
+		console.log(req.body)
 		this.ok(res, 'register')
 	}
 }
