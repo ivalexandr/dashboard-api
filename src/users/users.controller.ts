@@ -10,6 +10,7 @@ import { UserLoginDto } from './dto/user-login.dto'
 import { UserRegisterDto } from './dto/user-register.dto'
 import { IUsersService } from './users.service.interface'
 import 'reflect-metadata'
+import { ValidateMidleware } from '../common/validate.midleware'
 
 @injectable()
 export class UserController extends BaseController implements IUserController {
@@ -29,6 +30,7 @@ export class UserController extends BaseController implements IUserController {
 				path: '/register',
 				method: 'post',
 				func: this.register,
+				middlewares: [new ValidateMidleware(UserRegisterDto)],
 			},
 		]
 		this.bindRoutes(this.routes)
@@ -46,7 +48,7 @@ export class UserController extends BaseController implements IUserController {
 	): Promise<void> => {
 		const result = await this.userService.createUser(body)
 		if (!result) {
-			return next(new HTTPError(422, 'Такой пользователь уже существует'))
+			return next(new HTTPError(422, 'Такой пользователь уже существует', 'user is been'))
 		}
 		this.ok(res, { email: result.email })
 	}
