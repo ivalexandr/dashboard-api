@@ -5,10 +5,11 @@ import { IControllerRoute } from '../common/route.interface'
 import { HTTPError } from '../errors/http-error.class'
 import { TYPES } from '../types'
 import { ILogger } from '../logger/logger.interface'
+import { IUserController } from './users.interface'
 import 'reflect-metadata'
 
 @injectable()
-export class UserController extends BaseController {
+export class UserController extends BaseController implements IUserController {
   routes: IControllerRoute[]
   constructor(@inject(TYPES.ILogger) private loggerService: ILogger) {
     super(loggerService)
