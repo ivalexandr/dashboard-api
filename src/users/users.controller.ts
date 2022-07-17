@@ -12,6 +12,7 @@ import { IUsersService } from './users.service.interface'
 import { ValidateMidleware } from '../common/validate.midleware'
 import { IConfigService } from '../config/config.service.interface'
 import { sign } from 'jsonwebtoken'
+import { GuardMiddleware } from '../common/auth.guard'
 import 'reflect-metadata'
 
 @injectable()
@@ -40,6 +41,7 @@ export class UserController extends BaseController implements IUserController {
 				path: '/info',
 				method: 'get',
 				func: this.info,
+				middlewares: [new GuardMiddleware()],
 			},
 		]
 		this.bindRoutes(this.routes)
@@ -72,7 +74,11 @@ export class UserController extends BaseController implements IUserController {
 	}
 
 	info = async ({ user }: Request, res: Response, next: NextFunction): Promise<void> => {
-		this.ok(res, { user })
+		const result = await this.userService.getUserInfo(user)
+		if (!result) {
+			return next()
+		}
+		this.ok(res, { email: result.email, id: result.id })
 	}
 
 	private signJWT(email: string, secret: string): Promise<string> {

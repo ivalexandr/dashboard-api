@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { verify } from 'jsonwebtoken'
+import { JwtPayload, verify } from 'jsonwebtoken'
 import { IMiddleware } from './middleware.interface'
 
 export class AuthMiddleware implements IMiddleware {
@@ -10,12 +10,17 @@ export class AuthMiddleware implements IMiddleware {
 				if (err) {
 					next()
 				} else if (payload) {
-					const email = payload as string
-					req.user = email
-					next()
+					if (typeof payload === 'object') {
+						const user = payload.email
+						req.user = user
+						next()
+					} else {
+						next()
+					}
 				}
 			})
+		} else {
+			next()
 		}
-		next()
 	}
 }

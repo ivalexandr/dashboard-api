@@ -35,4 +35,8 @@ export class UsersService implements IUsersService {
 		const newUser = new User(existedUser.email, existedUser.name, existedUser.password)
 		return newUser.comparePassword(password)
 	}
+
+	getUserInfo = async (email: string): Promise<UserModel | null> => {
+		return await this.usersRepo.find(email)
+	}
 }
