@@ -7,8 +7,9 @@ import { json } from 'body-parser'
 import { IConfigService } from './config/config.service.interface'
 import { IExeptionFilter } from './errors/exeption.filter.interface'
 import { IUserController } from './users/users.interface'
-import 'reflect-metadata'
 import { PrismaService } from './database/prisma.service'
+import { AuthMiddleware } from './common/auth.middleware'
+import 'reflect-metadata'
 
 @injectable()
 export class App {
@@ -29,6 +30,7 @@ export class App {
 
 	useMiddleware(): void {
 		this.app.use(json())
+		this.app.use(new AuthMiddleware(this.configService.get('SECRET')).execute)
 	}
 
 	useRoutes(): void {

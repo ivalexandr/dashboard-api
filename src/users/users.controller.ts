@@ -10,6 +10,8 @@ import { UserLoginDto } from './dto/user-login.dto'
 import { UserRegisterDto } from './dto/user-register.dto'
 import { IUsersService } from './users.service.interface'
 import { ValidateMidleware } from '../common/validate.midleware'
+import { IConfigService } from '../config/config.service.interface'
+import { sign } from 'jsonwebtoken'
 import 'reflect-metadata'
 
 @injectable()
@@ -18,6 +20,7 @@ export class UserController extends BaseController implements IUserController {
 	constructor(
 		@inject(TYPES.ILogger) private loggerService: ILogger,
 		@inject(TYPES.UserService) private userService: IUsersService,
+		@inject(TYPES.ConfigService) private configService: IConfigService,
 	) {
 		super(loggerService)
 		this.routes = [
@@ -33,6 +36,11 @@ export class UserController extends BaseController implements IUserController {
 				func: this.register,
 				middlewares: [new ValidateMidleware(UserRegisterDto)],
 			},
+			{
+				path: '/info',
+				method: 'get',
+				func: this.info,
+			},
 		]
 		this.bindRoutes(this.routes)
 	}
@@ -46,8 +54,9 @@ export class UserController extends BaseController implements IUserController {
 		if (!result) {
 			return next(new HTTPError(401, 'Ошибка авторизации', 'login'))
 		}
+		const jwt = await this.signJWT(body.email, this.configService.get('SECRET'))
 		this.loggerService.log(`[UserController] Пользователь ${body.email} авторизовался`)
-		this.ok(res, body)
+		this.ok(res, { body, jwt })
 	}
 
 	register = async (
@@ -60,5 +69,27 @@ export class UserController extends BaseController implements IUserController {
 			return next(new HTTPError(422, 'Такой пользователь уже существует', 'user has been'))
 		}
 		this.ok(res, { email: result.email, id: result.id })
+	}
+
+	info = async ({ user }: Request, res: Response, next: NextFunction): Promise<void> => {
+		this.ok(res, { user })
+	}
+
+	private signJWT(email: string, secret: string): Promise<string> {
+		return new Promise<string>((res, rej) => {
+			sign(
+				{ email, iat: Math.floor(Date.now() / 1000) },
+				secret,
+				{
+					algorithm: 'HS256',
+				},
+				(err, token) => {
+					if (err) {
+						rej(err)
+					}
+					res(token as string)
+				},
+			)
+		})
 	}
 }
